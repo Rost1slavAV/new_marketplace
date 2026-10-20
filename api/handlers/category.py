@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
 from api.schemas.category import CategoryCreate, CategoryResponse
+from core.security import get_current_admin
+from db.models import User
 from db.session import get_db
 from services.category import create_category, get_all_categories
 
@@ -14,6 +16,7 @@ category_router = APIRouter()
 async def create_new_category(
     body: CategoryCreate,
     db: AsyncSession = Depends(get_db),
+    current_admin: User = Depends(get_current_admin)  # <-- Убрали скобки!
 ) -> CategoryResponse:
     category = await create_category(body=body, session=db)
     if category is None:
