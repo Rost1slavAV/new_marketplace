@@ -1,7 +1,7 @@
-import uuid
-
-from sqlalchemy import Column, String, Boolean, MetaData, UniqueConstraint
+from sqlalchemy import Column, String, Boolean, MetaData, UniqueConstraint, Enum, DateTime, ForeignKey, Text, func
 from sqlalchemy.dialects.postgresql import UUID
+import uuid
+import enum
 from sqlalchemy.orm import declarative_base
 
 
@@ -17,6 +17,11 @@ metadata = MetaData(naming_convention=convention)
 Base = declarative_base(metadata=metadata)
 
 
+class UserRole(str, enum.Enum):
+    USER = "user"
+    ADMIN = "admin"
+
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -25,6 +30,7 @@ class User(Base):
     surname = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
 
 
@@ -37,3 +43,15 @@ class Category(Base):
     category_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
     description = Column(String(500), nullable=False)
+
+
+class Article(Base):
+    __tablename__ = 'articles'
+
+    article_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title = Column(String, nullable=False)
+    text = Column(Text, nullable=False)
+    category_id = Column(UUID(as_uuid=True), ForeignKey('categories.category_id'), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+    is_deleted = Column(Boolean, nullable=False, default=False)
