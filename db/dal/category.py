@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from db.models import Category
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -28,4 +30,7 @@ class CategoryDAL:
 
     async def list_categories(self) -> list[Category]:
         result = await self.db_session.execute(select(Category))
-        return list(result.scalars().all())  # ← для СПИСКА
+        return list(result.scalars().all())
+
+    async def get_category_by_id(self, category_id: UUID) -> Optional[Category]:
+        return await self.db_session.get(Category, category_id)
