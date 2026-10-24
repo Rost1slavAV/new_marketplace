@@ -41,6 +41,9 @@ class ArticleDAL:
         if category_id is not None:
             article.category_id = category_id
         await self.db_session.flush()
+
+        await self.db_session.refresh(article)
+
         return article
 
 
