@@ -76,7 +76,7 @@ class ArticleDAL:
             filters.append(Article.category_id == category_id)
 
         if search is not None:
-            filters.append(Article.title.ilike(f"%{search}%"))
+            filters.append(Article.search_vector.match(search))
 
         # 2. Считаем общее количество с учетом фильтров
         count_query = select(func.count()).select_from(Article).where(*filters)

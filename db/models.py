@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Boolean, MetaData, UniqueConstraint, Enum, DateTime, ForeignKey, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, TSVECTOR
 import uuid
 import enum
 from sqlalchemy.orm import declarative_base
@@ -55,3 +55,4 @@ class Article(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
+    search_vector = Column(TSVECTOR)
