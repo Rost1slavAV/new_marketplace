@@ -1,0 +1,59 @@
+services:
+  # 1. База данных PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: marketplace-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: marketplace
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d marketplace"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Хранилище Minio (S3)
+  minio:
+    image: pgsty/silo:latest
+    container_name: marketplace-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+
+  # 3. FastAPI-приложение
+  app:
+    build: .
+    container_name: marketplace-app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/marketplace
+
+      # Настройки для подключения к Minio
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: article-images
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+volumes:
+  postgres_data:
+  minio_data:
