@@ -17,6 +17,7 @@ async def create_category(body: CategoryCreate, session: AsyncSession) -> Option
         name=body.name,
         description=body.description,
     )
+    await session.commit()
     return new_category
 
 async def get_all_categories(session: AsyncSession) -> List[Category]:

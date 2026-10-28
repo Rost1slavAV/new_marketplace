@@ -18,6 +18,7 @@ async def create_user(body: UserCreate, session: AsyncSession) -> Optional[User]
         email=body.email,
         password=hashed_password,
     )
+    await session.commit()
     return new_user
 
 async def authenticate_user(body: UserLogin, session: AsyncSession) -> Optional[User]:

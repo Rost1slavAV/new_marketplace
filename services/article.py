@@ -25,7 +25,7 @@ async def create_article(
         text=body.text,
         category_id=body.category_id
     )
-
+    await session.commit()
     return new_article
 
 
@@ -49,7 +49,7 @@ async def update_article(
         text=body.text,
         category_id=body.category_id,
     )
-
+    await session.commit()
     return updated_article
 
 
@@ -78,4 +78,5 @@ async def get_articles(
         category_id=category_id,
         search=search,
     )
+    await session.commit()
     return articles
