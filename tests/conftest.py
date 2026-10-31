@@ -12,6 +12,7 @@ from main import app
 from core.config import settings
 from db.models import Base
 from db.session import get_db
+from unittest.mock import patch
 
 
 test_engine = create_async_engine(
@@ -28,6 +29,15 @@ TestingSessionLocal = async_sessionmaker(
     autoflush=False
 )
 
+
+@pytest.fixture(autouse=True)
+def mock_rabbitmq_publisher():
+    """
+    Автоматически подменяет функцию отправки в RabbitMQ на заглушку.
+    Это позволяет тестам проходить без запущенного брокера.
+    """
+    with patch("services.user.publish_welcome_email") as mock:
+        yield mock
 
 
 async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
