@@ -45,14 +45,16 @@ class StorageService:
                 print(f"Ошибка при проверке бакета: {e}")
 
     async def upload_image(self, file: UploadFile) -> str:
-        await self._check_bucket()
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="Разрешены только изображения")
+
+        await self._check_bucket()
 
         file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
         unique_filename = f"{uuid.uuid4()}.{file_extension}"
 
         try:
+
             file_content = await file.read()
             self.s3_client.put_object(
                 Bucket=self.bucket,
@@ -61,10 +63,12 @@ class StorageService:
                 ContentType=file.content_type
             )
             return unique_filename
+
         except ClientError as e:
             print(f"Ошибка загрузки в MinIO: {e}")
             raise HTTPException(status_code=500, detail="Ошибка при сохранении файла")
         finally:
+
             await file.close()
 
     async def get_image(self, filename: str):
