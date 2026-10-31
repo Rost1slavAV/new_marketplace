@@ -36,7 +36,7 @@ def mock_rabbitmq_publisher():
     Автоматически подменяет функцию отправки в RabbitMQ на заглушку.
     Это позволяет тестам проходить без запущенного брокера.
     """
-    with patch("services.user.publish_welcome_email") as mock:
+    with patch("services.email_publisher.publish_welcome_email") as mock:
         yield mock
 
 
@@ -50,7 +50,6 @@ app.dependency_overrides[get_db] = override_get_db
 
 @pytest_asyncio.fixture(scope="session", loop_scope="session", autouse=True)
 async def setup_database():
-    """Применяет миграции к тестовой БД перед тестами."""
     import subprocess
     import os
 
@@ -63,7 +62,7 @@ async def setup_database():
         check=True
     )
     yield
-
+    
     await test_engine.dispose()
 
 

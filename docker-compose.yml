@@ -18,6 +18,23 @@ services:
       timeout: 5s
       retries: 5
 
+  # 3. RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: marketplace-rabbitmq
+    ports:
+      - "5672:5672"   # Порт для подключения приложения
+      - "15672:15672" # Веб-панель управления
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
   # 2. Хранилище Minio (S3)
   minio:
     image: pgsty/silo:latest
@@ -53,7 +70,9 @@ services:
       db:
         condition: service_healthy
       minio:
-        condition: service_started
+          condition: service_started
+      rabbitmq:
+          condition: service_healthy
 
 volumes:
   postgres_data:
